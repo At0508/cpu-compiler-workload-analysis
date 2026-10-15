@@ -55,6 +55,14 @@ The size and repetition count are arguments. It prints a correctness-checked CSV
 
 A measured Windows/AMD CPU sample, its command, and its limits are in [results/sample_amd64_2026-10-15.md](results/sample_amd64_2026-10-15.md). It is included to show actual output, not as a cross-machine performance claim.
 
+A broader [matrix-size/thread sweep](results/amd64_sweep_2026-10-15.md) retains all configurations, including slowdowns. The [companion JSON](results/amd64_sweep_2026-10-15.json) includes every iteration's timing, correctness checks, compiler flags, host details and the executable hash. Reproduce it from the repository root with Python 3.10+ and GCC/OpenMP:
+
+```bash
+python tools/run_sweep.py --compile --sizes 256,1024,2048 --threads 1,4 --rounds 3 --repetitions 15 --output results/cpu_sweep.json
+```
+
+The sweep runs cases sequentially and reports medians across rounds. Keep other CPU workloads idle when reproducing it. Matrix traversal changes and thread count explain the comparison; the LLVM analysis pass does not optimize these kernels. CI separately publishes its loop reports and CPU sweep as downloadable artifacts.
+
 ## Scope and limitations
 
 The pass counts instructions, loads, stores, and calls in each loop's blocks and asks ScalarEvolution for a small constant trip count. Nested-loop body blocks can appear in both a child loop's report and its parents' aggregate. The CPU benchmark is a focused experiment and does not model cache misses, aliasing costs, vectorization profitability, or GPU execution. The supplied IR fixture is for validating the pass's reporting contract, not a performance result.

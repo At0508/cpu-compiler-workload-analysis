@@ -85,7 +85,7 @@ bool run(std::size_t n, int repetitions) {
   kernels.push_back({"openmp_rows", parallel_rows});
 #endif
 
-  std::cout << "kernel,n,repetitions,median_ms,mad_ms,checksum,check\n";
+  std::cout << "kernel,n,repetitions,median_ms,mad_ms,checksum,check,samples_ms\n";
   for (const auto& item : kernels) {
     const double warmup = item.kernel(values, n);
     if (std::abs(warmup - reference) > tolerance) {
@@ -99,6 +99,10 @@ bool run(std::size_t n, int repetitions) {
       const auto start = Clock::now();
       checksum = item.kernel(values, n);
       const auto stop = Clock::now();
+      if (!std::isfinite(checksum) || std::abs(checksum - reference) > tolerance) {
+        std::cerr << "correctness check failed for " << item.name << " sample " << i << '\n';
+        return false;
+      }
       samples.push_back(std::chrono::duration<double, std::milli>(stop - start).count());
     }
     if (std::abs(checksum - reference) > tolerance) {
@@ -112,7 +116,12 @@ bool run(std::size_t n, int repetitions) {
     std::cout << item.name << ',' << n << ',' << repetitions << ','
               << std::fixed << std::setprecision(4) << center << ','
               << median(deviations) << ',' << std::setprecision(10)
-              << checksum << ",PASS\n";
+              << checksum << ",PASS,\"" << std::setprecision(6);
+    for (std::size_t i = 0; i < samples.size(); ++i) {
+      if (i) std::cout << ';';
+      std::cout << samples[i];
+    }
+    std::cout << "\"\n";
   }
   return true;
 }

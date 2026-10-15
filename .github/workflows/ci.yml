@@ -19,3 +19,15 @@ jobs:
         run: cmake --build build --parallel
       - name: Run fixture checks
         run: ctest --test-dir build --output-on-failure
+      - name: Record loop analysis and CPU experiment
+        run: |
+          opt-18 -load-pass-plugin=build/LoopReport.so -passes='function(loop-report)' -disable-output tests/fixtures/loops.ll 2> results/loop_report.txt
+          cat results/loop_report.txt
+          python3 tools/run_sweep.py --compile --sizes 256,1024 --threads 1,2 --rounds 2 --repetitions 9 --output results/ci_sweep.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: llvm-and-cpu-results
+          path: |
+            results/loop_report.txt
+            results/ci_sweep.json
+            results/ci_sweep.md
