@@ -17,7 +17,7 @@ class LoopReportPass : public PassInfoMixin<LoopReportPass> {
     if (F.isDeclaration()) return PreservedAnalyses::all();
 
     const auto& LI = AM.getResult<LoopAnalysis>(F);
-    const auto& SE = AM.getResult<ScalarEvolutionAnalysis>(F);
+    auto& SE = AM.getResult<ScalarEvolutionAnalysis>(F);
     for (const Loop* L : LI.getLoopsInPreorder()) {
       unsigned Instructions = 0;
       unsigned Loads = 0;
