@@ -57,6 +57,8 @@ A measured Windows/AMD CPU sample, its command, and its limits are in [results/s
 
 A broader [matrix-size/thread sweep](results/amd64_sweep_2026-10-15.md) retains all configurations, including slowdowns. The [companion JSON](results/amd64_sweep_2026-10-15.json) includes every iteration's timing, correctness checks, compiler flags, host details and the executable hash. Reproduce it from the repository root with Python 3.10+ and GCC/OpenMP:
 
+In the recorded Windows/AMD run, a single-thread 2048×2048 sum took 3.9138 ms in row-major order versus 33.4464 ms in column-major order (8.55×). These are medians across three round medians, each with fifteen timed iterations. Every one of the sweep's 1,080 timed checksums passed. The report also retains cases where blocking or extra threads made execution slower.
+
 ```bash
 python tools/run_sweep.py --compile --sizes 256,1024,2048 --threads 1,4 --rounds 3 --repetitions 15 --output results/cpu_sweep.json
 ```
