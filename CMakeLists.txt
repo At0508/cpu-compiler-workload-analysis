@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
 project(cpu_compiler_workload_analysis LANGUAGES C CXX)
 
-find_package(LLVM 18 REQUIRED CONFIG)
+find_package(LLVM REQUIRED CONFIG)
+if(LLVM_PACKAGE_VERSION VERSION_LESS "18.0" OR
+   LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL "19.0")
+  message(FATAL_ERROR "LLVM 18.x is required; found ${LLVM_PACKAGE_VERSION}")
+endif()
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 include(AddLLVM)
 
